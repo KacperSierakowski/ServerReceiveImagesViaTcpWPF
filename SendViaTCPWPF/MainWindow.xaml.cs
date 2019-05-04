@@ -88,8 +88,10 @@ namespace SendViaTCPWPF
             {
                 var networkStream = (client.GetStream());
                 string filePath = "O:/Pas Oriona/Kariera/Nowy folder/test" + "ClientId" + clientId.ToString() + ".jpeg";
+                string ImageInString = "";
                 FileStream fileStream = File.OpenWrite(filePath);
                 networkStream.CopyTo(fileStream);
+                
                 fileStream.Flush();
                 fileStream.Close();
                 TestImage.Dispatcher.Invoke(new Action(() => TestImage.Source = new BitmapImage(new Uri(filePath))), DispatcherPriority.Render);
@@ -100,7 +102,15 @@ namespace SendViaTCPWPF
             }
         }
 
+        public static System.Drawing.Image StringToImage(this string base64String)
+        {
+            if (String.IsNullOrWhiteSpace(base64String))
+                return null;
 
+            var bytes = Convert.FromBase64String(base64String);
+            var stream = new MemoryStream(bytes);
+            return System.Drawing.Image.FromStream(stream);
+        }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
