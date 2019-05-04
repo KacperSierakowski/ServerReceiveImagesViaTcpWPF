@@ -5,8 +5,43 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SendViaTCPWPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800" Background="Black">
     <Grid>
-        
+        <Button Content="START" HorizontalAlignment="Left" Margin="10,358,0,0" VerticalAlignment="Top" Width="274" Click="Button_Click" Background="#FF00DD00" Height="51"/>
+
+        <Grid Margin="289,10,273,340">
+            <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="IP:" VerticalAlignment="Top" Foreground="Lime"/>
+            <TextBlock HorizontalAlignment="Left" Margin="10,30,0,0" TextWrapping="Wrap" Text="Port:" VerticalAlignment="Top" Foreground="#FF00FA00"/>
+            <TextBox x:Name="TextBoxChoosenPort" PreviewTextInput="TextBoxChoosenPort_PreviewTextInput" HorizontalAlignment="Left" Height="23" Margin="39,30,0,0" TextWrapping="Wrap" Text="8888" VerticalAlignment="Top" Width="188" Background="Lime"/>
+            <TextBlock x:Name="TextBlockIP" HorizontalAlignment="Left" Margin="39,10,0,0" TextWrapping="Wrap" Text="?" VerticalAlignment="Top" Foreground="Lime" Width="188"/>
+        </Grid>
+        <Grid Margin="289,84,365,237">
+            <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Connected devices:" VerticalAlignment="Top" Foreground="Lime"/>
+            <ComboBox HorizontalAlignment="Left" Margin="10,36,0,0" VerticalAlignment="Top" Width="120" BorderBrush="#FF00AC00">
+                <ComboBox.Background>
+                    <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                        <GradientStop Color="#FFF0F0F0" Offset="0"/>
+                        
+                        <GradientStop Color="#FF00E500" Offset="1"/>
+                    </LinearGradientBrush>
+                </ComboBox.Background>
+            </ComboBox>
+            <Button Content="Choose" HorizontalAlignment="Left" Margin="10,70,0,0" VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.02,0.3" Background="#FF00DD00" Click="Button_Click_1"/>
+        </Grid>
+        <Grid Margin="289,187,39,29">
+            <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Server status:" VerticalAlignment="Top" Foreground="Lime"/>
+            <TextBlock x:Name="TextBlockServerStatus" HorizontalAlignment="Left" Margin="10,31,0,0" TextWrapping="Wrap" Text="?" VerticalAlignment="Top" Foreground="Lime" Height="162" Width="444"/>
+
+        </Grid>
+
+        <Grid Margin="10,10,508,61">
+
+            <Image x:Name="TestImage" Source="O:/Pas Oriona/Kariera/Nowy folder/sen-o-7-szklankach-w-iext54089873.jpg" HorizontalAlignment="Left" Height="296" Margin="10,42,0,0" VerticalAlignment="Top" Width="254"/>
+            <Grid Margin="0,0,0,311">
+
+                <TextBlock HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="What is happening on device (ClientId): " VerticalAlignment="Top" Foreground="Lime"/>
+                <TextBlock x:Name="TextBlockClientId" HorizontalAlignment="Left" Margin="10,16,0,0" TextWrapping="Wrap" Text="?" VerticalAlignment="Top" Width="117" Foreground="Lime"/>
+            </Grid>
+        </Grid>
     </Grid>
 </Window>

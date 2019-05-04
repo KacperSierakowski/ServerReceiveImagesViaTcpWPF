@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.489
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SendViaTCPWPF", "SendViaTCPWPF\SendViaTCPWPF.csproj", "{CD19C6C4-1EF5-4A15-9BB7-8E7DA4794606}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerTcpMultiThreadWPF", "SendViaTCPWPF\ServerTcpMultiThreadWPF.csproj", "{CD19C6C4-1EF5-4A15-9BB7-8E7DA4794606}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
