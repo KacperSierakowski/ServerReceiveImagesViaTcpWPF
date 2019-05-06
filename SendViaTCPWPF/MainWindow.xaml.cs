@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -23,135 +24,81 @@ namespace SendViaTCPWPF
 {
     public partial class MainWindow : Window
     {
+        private UDPListener Listener = new UDPListener();
+        private bool IsStartStreaming = false;
         public MainWindow()
         {
             InitializeComponent();
-            WhatIsIpAdress();
-            //SecondThread();
+            GetIpAdress();
+            Listener.OnDataReceived += OnDataReceived;
         }
-        private string WhatIsIpAdress()
+
+        private string GetIpAdress()
         {
             IPHostEntry iPHostEntry;
-            string localIp = "?";
             iPHostEntry = Dns.GetHostEntry(Dns.GetHostName());
             foreach (IPAddress iPAddress in iPHostEntry.AddressList)
             {
                 if (iPAddress.AddressFamily.ToString() == "InterNetwork")
                 {
-                    localIp = iPAddress.ToString();
-                    TextBlockIP.Dispatcher.Invoke(new Action(() => TextBlockIP.Text = localIp), DispatcherPriority.Render);
+                    TextBlockIP.Text = iPAddress.ToString();
                 }
             }
-            return localIp;
+            return TextBlockIP.Text;
         }
-        private int WhatIsChoosenPort()
+        private int GetPort()
         {
-            int Port = 8888;
-            TextBoxChoosenPort.Dispatcher.Invoke(new Action(() => Port = Int32.Parse(TextBoxChoosenPort.Text)), DispatcherPriority.Render);
-            return Port;
+            return Int32.Parse(TextBoxChoosenPort.Text);
         }
         private void TextBoxChoosenPort_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             e.Handled = new Regex("[^0-9]+").IsMatch(e.Text);
         }
-        int clientID = 1;
-        private void SecondThread()
+
+        private void Start_Click(object sender, RoutedEventArgs e)
         {
-            Thread thread1 = new Thread(() =>
-            {
-                TcpListener Listener = null;
-                try
-                {
-                    string ip = WhatIsIpAdress();
-                    Listener = new TcpListener(IPAddress.Parse(ip), 8888);
-                    Listener.Start();
-                    TestImage.Dispatcher.Invoke(new Action(() => TextBlockServerStatus.Text = "Listening..."), DispatcherPriority.Render);
-                    while (true)
-                    {
-                        TcpClient client = Listener.AcceptTcpClient();
-                        TestImage.Dispatcher.Invoke(new Action(() => TextBlockClientId.Text = clientID.ToString()), DispatcherPriority.Render);
-                        Thread clientThread = new Thread(() => ProcessClientRequest(client, clientID));
-                        clientThread.Start();
-                        clientID++;
-                    }
-                }
-                catch (Exception e)
-                {
-                    TestImage.Dispatcher.Invoke(new Action(() => TextBlockServerStatus.Text = "Lost connection with client" + e.ToString()), DispatcherPriority.Render);
-                }
-            });
-            thread1.Start();
+            ChangeUIControls();
         }
-        private void ProcessClientRequest(TcpClient client, int clientId)
+
+        private void ChangeUIControls()
         {
-            try
+            if (IsStartStreaming)
             {
-                var networkStream = (client.GetStream());
-                string filePath = "O:/Pas Oriona/Kariera/Nowy folder/test" + "ClientId" + clientId.ToString() + ".jpeg";
-                string ImageInString = "";
-                FileStream fileStream = File.OpenWrite(filePath);
-                networkStream.CopyTo(fileStream);
-                
-                fileStream.Flush();
-                fileStream.Close();
-                TestImage.Dispatcher.Invoke(new Action(() => TestImage.Source = new BitmapImage(new Uri(filePath))), DispatcherPriority.Render);
+                Listener.Stop();
+                IsStartStreaming = false;
+                TextBoxChoosenPort.IsReadOnly = false;
+                StartButton.Content = "START";
+                StartButton.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 255, 0));
+                TextBlockServerStatus.Text = "Closed";
+                TestImage.Source = null;
+                //TestImage.Visibility = Visibility.Hidden;
             }
-            catch (Exception e)
+            else
             {
-                TestImage.Dispatcher.Invoke(new Action(() => TextBlockServerStatus.Text = "Lost connection with client" + e.ToString()), DispatcherPriority.Render);
+                Listener.Start(GetPort(), GetIpAdress(), "\r\n");
+                IsStartStreaming = true;
+                TextBoxChoosenPort.IsReadOnly = true;
+                StartButton.Content = "STOP";
+                StartButton.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
+                TextBlockServerStatus.Text = "Opened";
+                //TestImage.Visibility = Visibility.Visible;
             }
         }
 
-        public static System.Drawing.Image StringToImage(this string base64String)
+        private void OnDataReceived(string obj)
         {
-            if (String.IsNullOrWhiteSpace(base64String))
-                return null;
+            string screenshot = obj.Split('#')[1];
 
-            var bytes = Convert.FromBase64String(base64String);
+            var bytes = Convert.FromBase64String(screenshot);
             var stream = new MemoryStream(bytes);
-            return System.Drawing.Image.FromStream(stream);
+            stream.Seek(0, SeekOrigin.Begin);
+            TestImage.Dispatcher.Invoke(new Action(() => {
+                BitmapImage bitmapImage = new BitmapImage();
+                bitmapImage.BeginInit();
+                bitmapImage.StreamSource = stream;
+                bitmapImage.EndInit();
+                TestImage.Source = bitmapImage;
+            }));
         }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            SecondThread();
-        }
-
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            TestImage.Dispatcher.Invoke(new Action(() => TextBlockClientId.Text = "clientID" + e.ToString()), DispatcherPriority.Render);
-        }
-
-
-        private void SocketForOneClient()
-        {
-            Thread thread1 = new Thread(() =>
-            {
-
-                string ip = WhatIsIpAdress();
-                int port = WhatIsChoosenPort();
-                IPEndPoint iPEnd = new IPEndPoint(IPAddress.Parse(ip), port);
-                TextBlockServerStatus.Dispatcher.Invoke(new Action(() => TextBlockServerStatus.Text = "Listening..."), DispatcherPriority.Render);
-                string filePath = "O:/Pas Oriona/Kariera/Nowy folder/test.jpg";
-
-                var listener = new TcpListener(iPEnd);
-                listener.Start();
-
-                using (var incoming = listener.AcceptTcpClient())
-                using (var networkStream = incoming.GetStream())
-                using (var fileStream = File.OpenWrite(filePath))
-                {
-                    networkStream.CopyTo(fileStream);
-
-                    fileStream.Flush();
-                    fileStream.Close();
-                    TestImage.Dispatcher.Invoke(new Action(() => TestImage.Source = new BitmapImage(new Uri(filePath))), DispatcherPriority.Render);
-
-                }
-                listener.Stop();
-            });
-            thread1.Start();
-        }
-
     }
 }
