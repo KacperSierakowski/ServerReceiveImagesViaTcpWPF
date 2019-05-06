@@ -31,7 +31,7 @@
                     </Grid>
                     <Grid Grid.Column="2">
                         <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Connected devices:" VerticalAlignment="Top" Foreground="Lime"/>
-                        <ComboBox HorizontalAlignment="Left" Margin="10,36,0,0" VerticalAlignment="Top" Width="120" BorderBrush="#FF00AC00">
+                        <ComboBox x:Name="Clients" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top" Width="120" BorderBrush="#FF00AC00" IsEnabled="False" >
                             <ComboBox.Background>
                                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
                                     <GradientStop Color="#FFF0F0F0" Offset="0"/>
@@ -40,7 +40,6 @@
                                 </LinearGradientBrush>
                             </ComboBox.Background>
                         </ComboBox>
-                        <Button Content="Choose" HorizontalAlignment="Left" Margin="10,70,0,0" VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.02,0.3" Background="#FF00DD00"/>
                     </Grid>
                     <Grid Grid.Column="3">
                         <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Server status:" VerticalAlignment="Top" Foreground="Lime"/>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -24,6 +25,7 @@ namespace SendViaTCPWPF
 {
     public partial class MainWindow : Window
     {
+        private ObservableCollection<string> PhoneClients = new ObservableCollection<string>();
         private UDPListener Listener = new UDPListener();
         private bool IsStartStreaming = false;
         public MainWindow()
@@ -31,6 +33,7 @@ namespace SendViaTCPWPF
             InitializeComponent();
             GetIpAdress();
             Listener.OnDataReceived += OnDataReceived;
+            Clients.ItemsSource = PhoneClients;
         }
 
         private string GetIpAdress()
@@ -71,7 +74,8 @@ namespace SendViaTCPWPF
                 StartButton.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 255, 0));
                 TextBlockServerStatus.Text = "Closed";
                 TestImage.Source = null;
-                //TestImage.Visibility = Visibility.Hidden;
+                PhoneClients.Clear();
+                Clients.IsEnabled = false;
             }
             else
             {
@@ -81,24 +85,42 @@ namespace SendViaTCPWPF
                 StartButton.Content = "STOP";
                 StartButton.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
                 TextBlockServerStatus.Text = "Opened";
-                //TestImage.Visibility = Visibility.Visible;
+                Clients.IsEnabled = true;
             }
         }
 
         private void OnDataReceived(string obj)
         {
-            string screenshot = obj.Split('#')[1];
+            try
+            {
+                Application.Current.Dispatcher.Invoke(new Action(() =>
+                {
+                    string client = obj.Split('#')[0];
+                    string screenshot = obj.Split('#')[1];
+                    if (!PhoneClients.Contains(client))
+                    {
+                        PhoneClients.Add(client);
+                        if (PhoneClients.Count == 1)
+                            Clients.SelectedItem = client;
+                    }
 
-            var bytes = Convert.FromBase64String(screenshot);
-            var stream = new MemoryStream(bytes);
-            stream.Seek(0, SeekOrigin.Begin);
-            TestImage.Dispatcher.Invoke(new Action(() => {
-                BitmapImage bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = stream;
-                bitmapImage.EndInit();
-                TestImage.Source = bitmapImage;
-            }));
+                    if (Clients.SelectedItem != null && (Clients.SelectedItem as string) != client)
+                        return;
+
+                    var bytes = Convert.FromBase64String(screenshot);
+                    var stream = new MemoryStream(bytes);
+                    stream.Seek(0, SeekOrigin.Begin);
+                    BitmapImage bitmapImage = new BitmapImage();
+                    bitmapImage.BeginInit();
+                    bitmapImage.StreamSource = stream;
+                    bitmapImage.EndInit();
+                    TestImage.Source = bitmapImage;
+                }));
+            }
+            catch (Exception ex)
+            { 
+            }
+            
         }
     }
 }
