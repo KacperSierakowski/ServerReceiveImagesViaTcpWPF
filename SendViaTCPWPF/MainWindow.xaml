@@ -48,7 +48,8 @@
                 </Grid>
             </Grid>
             <Grid Grid.Row="1">
-                <Image x:Name="TestImage" Margin="10"/>
+
+                <Image x:Name="TestImage" Margin="10" MouseUp="MouseUpTestImage"/>
             </Grid>
         </Grid>
         

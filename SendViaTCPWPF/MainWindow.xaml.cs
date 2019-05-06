@@ -89,6 +89,7 @@ namespace SendViaTCPWPF
             }
         }
 
+        public bool SecondWindowsIsOpen = false;
         private void OnDataReceived(string obj)
         {
             try
@@ -115,12 +116,45 @@ namespace SendViaTCPWPF
                     bitmapImage.StreamSource = stream;
                     bitmapImage.EndInit();
                     TestImage.Source = bitmapImage;
+                    if (SecondWindowsIsOpen == true)
+                    {
+                        UpdateImageinFullScreen(bitmapImage);
+                    }
+                    else
+                    {
+                        UpdateImageinFullScreen(bitmapImage);
+                    }
+                    
                 }));
             }
             catch (Exception ex)
-            { 
+            {
+            }
+
+        }
+
+        FullScreenWindow FullScreenWindow = new FullScreenWindow();
+        private void MouseUpTestImage(object sender, MouseButtonEventArgs e)
+        {
+            if(SecondWindowsIsOpen == true)
+            {
+                FullScreenWindow.Show();
+            }
+            else
+            {
+                FullScreenWindow = new FullScreenWindow(this);
+                SecondWindowsIsOpen = true;
+                FullScreenWindow.Show();
             }
             
+            if (e.ClickCount == 2)
+            {
+                MessageBox.Show("Klik dwa razy");
+            }
+        }
+        private void UpdateImageinFullScreen(BitmapImage bitmapImage)
+        {
+            FullScreenWindow.TestImage.Dispatcher.Invoke(new Action(() => FullScreenWindow.TestImage.Source = bitmapImage), DispatcherPriority.Render);
         }
     }
 }
